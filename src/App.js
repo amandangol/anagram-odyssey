@@ -3,6 +3,8 @@ import Letters from './components/Letters';
 import { FaSun, FaMoon, FaGithub, FaTwitter } from 'react-icons/fa';
 import { getLocalStorageItem, setLocalStorageItem } from './utils/localStorage';
 import ErrorBoundary from './components/ErrorBoundary';
+import 'tailwindcss/tailwind.css';
+
 
 function App() {
   const [darkMode, setDarkMode] = useState(() => {

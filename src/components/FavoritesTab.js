@@ -7,9 +7,9 @@ const FavoritesTab = ({ favoriteWords, darkMode, fetchDefinition, toggleFavorite
       <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {favoriteWords.get_all().map((word, index) => (
           <li key={index} className={`p-3 rounded-md flex items-center justify-between ${
-            darkMode ? 'bg-gray-700' : 'bg-white shadow'
+            darkMode ? 'bg-gray-800' : 'bg-white shadow'
           }`}>
-            <span className="text-md">{word}</span>
+            <span className={`text-md ${darkMode ? 'text-gray-300' : 'text-gray-900'}`}>{word}</span>
             <div className="flex items-center">
               <button
                 onClick={() => fetchDefinition(word)}
@@ -22,7 +22,9 @@ const FavoritesTab = ({ favoriteWords, darkMode, fetchDefinition, toggleFavorite
               </button>
               <button
                 onClick={() => toggleFavorite(word)}
-                className={`focus:outline-none text-pink-500 hover:text-pink-400`}
+                className={`focus:outline-none ${
+                  darkMode ? 'text-pink-400 hover:text-pink-300' : 'text-pink-500 hover:text-pink-400'
+                }`}
               >
                 <FaHeart size={20} />
               </button>
@@ -31,7 +33,7 @@ const FavoritesTab = ({ favoriteWords, darkMode, fetchDefinition, toggleFavorite
         ))}
       </ul>
     ) : (
-      <p className={`text-lg ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+      <p className={`text-lg ${darkMode ? 'text-gray-400' : 'text-gray-700'}`}>
         No favorite words added yet. Add words to your favorites to see them here.
       </p>
     )}

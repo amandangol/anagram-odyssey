@@ -1,12 +1,12 @@
 /* src/styles/Letters.css */
 .tab-content {
-    transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
-    opacity: 0;
-    transform: translateY(10px);
-    display: none;
-  }
-  .tab-content.active {
-    opacity: 1;
-    transform: translateY(0);
-    display: block;
-  }
+  transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+  opacity: 0;
+  transform: translateY(10px);
+  display: none;
+}
+.tab-content.active {
+  opacity: 1;
+  transform: translateY(0);
+  display: block;
+}

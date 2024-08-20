@@ -100,13 +100,20 @@ function Letters({ darkMode }) {
     setError('');
   };
 
-  const inputClass = `border p-3 w-full rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 ${
-    darkMode ? 'bg-gray-800 border-gray-700 text-white' : 'bg-white border-gray-300 text-gray-900'
-  }`;
+  const inputClass = `
+  border p-3 w-full rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500
+  ${darkMode ? 'bg-gray-800 border-gray-700 text-white' : 'bg-white border-gray-300 text-gray-900'}
+`;
+
 
   const buttonClass = `px-6 py-3 rounded-lg font-semibold shadow-md hover:shadow-lg transition-all duration-300 ${
     darkMode ? 'bg-indigo-600 text-white hover:bg-indigo-700' : 'bg-indigo-500 text-white hover:bg-indigo-600'
   }`;
+
+  const labelClass = `
+  block text-sm font-medium mb-1
+  ${darkMode ? 'text-gray-400' : 'text-gray-700'}
+`;
 
   return (
     <div className="transition-colors duration-300">
@@ -176,49 +183,49 @@ function Letters({ darkMode }) {
 
           {/* Input Form */}
           <form onSubmit={handleSubmit} className="space-y-6 mb-8">
-            <div>
-              <label htmlFor="input" className="block text-sm font-medium mb-1">
-                Enter Letters
-              </label>
-              <input
-                id="input"
-                type="text"
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                className={inputClass}
-                placeholder="Enter letters"
-              />
-            </div>
-            <div className="flex space-x-4">
-              <div className="flex-1">
-                <label htmlFor="minLength" className="block text-sm font-medium mb-1">
-                  Min Length
-                </label>
-                <input
-                  id="minLength"
-                  type="number"
-                  value={minLength}
-                  onChange={(e) => setMinLength(parseInt(e.target.value))}
-                  className={inputClass}
-                  min="1"
-                  placeholder="Min Length"
-                />
-              </div>
-              <div className="flex-1">
-                <label htmlFor="maxResults" className="block text-sm font-medium mb-1">
-                  Max Results
-                </label>
-                <input
-                  id="maxResults"
-                  type="number"
-                  value={maxResults}
-                  onChange={(e) => setMaxResults(parseInt(e.target.value))}
-                  className={inputClass}
-                  min="1"
-                  placeholder="Max Results"
-                />
-              </div>
-            </div>
+          <div>
+        <label htmlFor="input" className={labelClass}>
+          Enter Letters
+        </label>
+        <input
+          id="input"
+          type="text"
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          className={inputClass}
+          placeholder="Enter letters"
+        />
+      </div>
+      <div className="flex space-x-4">
+        <div className="flex-1">
+          <label htmlFor="minLength" className={labelClass}>
+            Min Length
+          </label>
+          <input
+            id="minLength"
+            type="number"
+            value={minLength}
+            onChange={(e) => setMinLength(parseInt(e.target.value))}
+            className={inputClass}
+            min="1"
+            placeholder="Min Length"
+          />
+        </div>
+        <div className="flex-1">
+          <label htmlFor="maxResults" className={labelClass}>
+            Max Results
+          </label>
+          <input
+            id="maxResults"
+            type="number"
+            value={maxResults}
+            onChange={(e) => setMaxResults(parseInt(e.target.value))}
+            className={inputClass}
+            min="1"
+            placeholder="Max Results"
+          />
+        </div>
+      </div>
             <div className="flex space-x-4">
               <button type="submit" className={buttonClass} disabled={isLoading}>
                 {isLoading ? 'Searching...' : 'Find Anagrams'}
