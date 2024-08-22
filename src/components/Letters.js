@@ -1,16 +1,16 @@
 import React, { useState } from 'react';
-import {  FaHistory, FaTimes, FaCalendarDay, FaBars } from 'react-icons/fa';
+import { FaHistory, FaTimes, FaCalendarDay, FaArrowAltCircleLeft, FaArrowCircleLeft } from 'react-icons/fa';
 import useWasmInit from '../hooks/useWasmInit';
 import AnagramsTab from './AnagramsTab';
 import FavoritesTab from './FavoritesTab';
 import TabButton from './TabButton';
 import '../styles/Letters.css';
 
-import init, { letters, fetch_definition,FavoriteWords } from '../pkg/anagram_odyssey.js';
+import init, { letters, fetch_definition, FavoriteWords } from '../pkg/anagram_odyssey.js';
 
 
 function Letters({ darkMode }) {
-  const { wordlist, favoriteWords, wordHistory, wordOfTheDay, error: initError,setFavoriteWords } = useWasmInit();
+  const { wordlist, favoriteWords, wordHistory, wordOfTheDay, error: initError, setFavoriteWords } = useWasmInit();
   const [input, setInput] = useState('');
   const [minLength, setMinLength] = useState(4);
   const [maxResults, setMaxResults] = useState(10);
@@ -42,7 +42,7 @@ function Letters({ darkMode }) {
     setDefinition('Loading...');
     try {
       const result = await fetch_definition(word);
-      const def = result.toString(); 
+      const def = result.toString();
       setDefinition(def === "No definition found" ? def : def);
     } catch (error) {
       console.error('Error fetching definition:', error);
@@ -106,9 +106,8 @@ function Letters({ darkMode }) {
 `;
 
 
-  const buttonClass = `px-6 py-3 rounded-lg font-semibold shadow-md hover:shadow-lg transition-all duration-300 ${
-    darkMode ? 'bg-indigo-600 text-white hover:bg-indigo-700' : 'bg-indigo-500 text-white hover:bg-indigo-600'
-  }`;
+  const buttonClass = `px-6 py-3 rounded-lg font-semibold shadow-md hover:shadow-lg transition-all duration-300 ${darkMode ? 'bg-indigo-600 text-white hover:bg-indigo-700' : 'bg-indigo-500 text-white hover:bg-indigo-600'
+    }`;
 
   const labelClass = `
   block text-sm font-medium mb-1
@@ -118,45 +117,49 @@ function Letters({ darkMode }) {
   return (
     <div className="transition-colors duration-300">
       <div className="flex h-full">
-        <button
-          onClick={() => setSidebarVisible(!sidebarVisible)}
-          className={`fixed top-4 left-4 z-10 p-2 rounded-full transition-all duration-300 ${
-            darkMode ? 'bg-gray-700 text-white' : 'bg-gray-200 text-gray-800'
-          } ${sidebarVisible ? 'ml-64' : 'ml-0'}`}
-        >
-          <FaBars />
-        </button>
-        
+      <button
+  onClick={() => setSidebarVisible(!sidebarVisible)}
+  className={`fixed top-24 left-4 z-20 p-3 rounded-full transition-all duration-300 ${
+    darkMode ? 'bg-gray-700 text-white hover:bg-gray-600' : 'bg-white text-gray-800 hover:bg-gray-100'
+  } shadow-lg ${sidebarVisible ? 'translate-x-64' : 'translate-x-0'}`}
+>
+  <FaArrowCircleLeft className={`transform transition-transform duration-300 ${sidebarVisible ? 'rotate-180' : ''}`} />
+</button>
+
         {/* Sidebar */}
         <div
-          className={`fixed top-0 left-0 h-full transition-all duration-300 ${
-            sidebarVisible ? 'w-64' : 'w-0 overflow-hidden'
-          } ${darkMode ? 'bg-gray-800 text-white' : 'bg-white shadow-lg'}`}
-        >
-          <div className="p-6">
-            <h2 className="text-xl font-semibold mb-6 flex items-center">
-              <FaHistory className="mr-2" /> Word History
-            </h2>
-            {wordHistory && wordHistory.get_all().length > 0 ? (
-              <ul className="space-y-2 text-sm">
-                {wordHistory.get_all().map((word, index) => (
-                  <li
-                    key={index}
-                    className={`p-2 rounded-md ${darkMode ? 'bg-gray-700' : 'bg-gray-100'}`}
-                  >
-                    {word}
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p>No word history available.</p>
-            )}
-          </div>
-        </div>
+  className={`fixed top-0 left-0 h-full pt-20 transition-all duration-300 overflow-hidden ${
+    sidebarVisible ? 'w-64' : 'w-0'
+  } ${darkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-800 shadow-lg'}`}
+>
+  <div className="p-6 h-full flex flex-col">
+    <h2 className="text-xl font-semibold mb-6 flex items-center">
+      <FaHistory className="mr-2" /> Word History
+    </h2>
+    <div className="flex-grow overflow-y-auto">
+      {wordHistory && wordHistory.get_all().length > 0 ? (
+        <ul className="space-y-2 text-sm">
+          {wordHistory.get_all().map((word, index) => (
+            <li
+              key={index}
+              className={`p-2 rounded-md transition-colors duration-200 ${
+                darkMode ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-100 hover:bg-gray-200'
+              }`}
+            >
+              {word}
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="text-center text-gray-500">No word history available.</p>
+      )}
+    </div>
+  </div>
+</div>
 
         {/* Main Content */}
-        <div className={`flex-1 transition-all duration-300 ${sidebarVisible ? 'ml-64' : 'ml-0'} p-6`}>
-          {/* Word of the Day */}
+        <div className={`flex-1 transition-all duration-300 ${sidebarVisible ? 'ml-64' : 'ml-0'} p-6 pt-8`}>
+        {/* Word of the Day */}
           <div className={`mb-8 p-4 rounded-lg ${darkMode ? 'bg-gray-800' : 'bg-gray-100'}`}>
             <div className="flex items-center justify-between">
               <div className="flex items-center">
@@ -170,11 +173,10 @@ function Letters({ darkMode }) {
                   </p>
                 </div>
               </div>
-              <button 
-                onClick={useWordOfTheDay} 
-                className={`px-3 py-1 text-sm rounded-full font-medium transition-colors duration-200 ${
-                  darkMode ? 'bg-indigo-600 text-white hover:bg-indigo-700' : 'bg-indigo-500 text-white hover:bg-indigo-600'
-                }`}
+              <button
+                onClick={useWordOfTheDay}
+                className={`px-3 py-1 text-sm rounded-full font-medium transition-colors duration-200 ${darkMode ? 'bg-indigo-600 text-white hover:bg-indigo-700' : 'bg-indigo-500 text-white hover:bg-indigo-600'
+                  }`}
               >
                 Use
               </button>
@@ -183,49 +185,49 @@ function Letters({ darkMode }) {
 
           {/* Input Form */}
           <form onSubmit={handleSubmit} className="space-y-6 mb-8">
-          <div>
-        <label htmlFor="input" className={labelClass}>
-          Enter Letters
-        </label>
-        <input
-          id="input"
-          type="text"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          className={inputClass}
-          placeholder="Enter letters"
-        />
-      </div>
-      <div className="flex space-x-4">
-        <div className="flex-1">
-          <label htmlFor="minLength" className={labelClass}>
-            Min Length
-          </label>
-          <input
-            id="minLength"
-            type="number"
-            value={minLength}
-            onChange={(e) => setMinLength(parseInt(e.target.value))}
-            className={inputClass}
-            min="1"
-            placeholder="Min Length"
-          />
-        </div>
-        <div className="flex-1">
-          <label htmlFor="maxResults" className={labelClass}>
-            Max Results
-          </label>
-          <input
-            id="maxResults"
-            type="number"
-            value={maxResults}
-            onChange={(e) => setMaxResults(parseInt(e.target.value))}
-            className={inputClass}
-            min="1"
-            placeholder="Max Results"
-          />
-        </div>
-      </div>
+            <div>
+              <label htmlFor="input" className={labelClass}>
+                Enter Letters
+              </label>
+              <input
+                id="input"
+                type="text"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                className={inputClass}
+                placeholder="Enter letters"
+              />
+            </div>
+            <div className="flex space-x-4">
+              <div className="flex-1">
+                <label htmlFor="minLength" className={labelClass}>
+                  Min Length
+                </label>
+                <input
+                  id="minLength"
+                  type="number"
+                  value={minLength}
+                  onChange={(e) => setMinLength(parseInt(e.target.value))}
+                  className={inputClass}
+                  min="1"
+                  placeholder="Min Length"
+                />
+              </div>
+              <div className="flex-1">
+                <label htmlFor="maxResults" className={labelClass}>
+                  Max Results
+                </label>
+                <input
+                  id="maxResults"
+                  type="number"
+                  value={maxResults}
+                  onChange={(e) => setMaxResults(parseInt(e.target.value))}
+                  className={inputClass}
+                  min="1"
+                  placeholder="Max Results"
+                />
+              </div>
+            </div>
             <div className="flex space-x-4">
               <button type="submit" className={buttonClass} disabled={isLoading}>
                 {isLoading ? 'Searching...' : 'Find Anagrams'}
@@ -289,9 +291,8 @@ function Letters({ darkMode }) {
           {/* Definition Modal */}
           {selectedWord && (
             <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-              <div className={`relative max-w-md w-full rounded-lg shadow-lg ${
-                darkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'
-              }`}>
+              <div className={`relative max-w-md w-full rounded-lg shadow-lg ${darkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'
+                }`}>
                 <div className="p-6">
                   <h3 className="text-2xl font-bold mb-2">{selectedWord}</h3>
                   <div className={`text-sm mb-4 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
@@ -304,22 +305,20 @@ function Letters({ darkMode }) {
                       definition
                     )}
                   </p>
-                  <button 
+                  <button
                     onClick={() => setSelectedWord('')}
-                    className={`w-full py-2 px-4 rounded-md transition-colors ${
-                      darkMode 
-                        ? 'bg-gray-700 hover:bg-gray-600 text-white' 
+                    className={`w-full py-2 px-4 rounded-md transition-colors ${darkMode
+                        ? 'bg-gray-700 hover:bg-gray-600 text-white'
                         : 'bg-gray-200 hover:bg-gray-300 text-gray-800'
-                    }`}
+                      }`}
                   >
                     Close
                   </button>
                 </div>
-                <button 
-                  onClick={() => setSelectedWord('')} 
-                  className={`absolute top-3 right-3 text-2xl ${
-                    darkMode ? 'text-gray-300 hover:text-white' : 'text-gray-600 hover:text-gray-800'
-                  }`}
+                <button
+                  onClick={() => setSelectedWord('')}
+                  className={`absolute top-3 right-3 text-2xl ${darkMode ? 'text-gray-300 hover:text-white' : 'text-gray-600 hover:text-gray-800'
+                    }`}
                 >
                   <FaTimes />
                 </button>
