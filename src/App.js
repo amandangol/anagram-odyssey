@@ -44,7 +44,7 @@ function App() {
 
 
     <div className="flex items-center space-x-4">
-    <a
+    {/* <a
               href="https://github.com/amandangol"
               target="_blank"
               rel="noopener noreferrer"
@@ -53,7 +53,7 @@ function App() {
               } hover:text-indigo-500 transition-colors duration-300`}
             >
               <FaGithub size={24} />
-            </a>
+            </a> */}
             <a
               href="https://twitter.com/amand4ngol"
               target="_blank"
