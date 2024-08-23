@@ -12,8 +12,8 @@ import init, { letters, fetch_definition, FavoriteWords } from '../pkg/anagram_o
 function Letters({ darkMode }) {
   const { wordlist, favoriteWords, wordHistory, wordOfTheDay, error: initError, setFavoriteWords } = useWasmInit();
   const [input, setInput] = useState('');
-  const [minLength, setMinLength] = useState(4);
-  const [maxResults, setMaxResults] = useState(10);
+  const [minLength, setMinLength] = useState(3);
+  const [maxResults, setMaxResults] = useState(20);
   const [results, setResults] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
