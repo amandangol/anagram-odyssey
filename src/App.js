@@ -31,14 +31,18 @@ function App() {
   } transition-colors duration-300`}
 >
   <div className="container mx-auto flex items-center justify-between">
-    <div className="flex items-center space-x-4">
-      <img
-        src="/anagram.png"
-        alt="Anagram Odyssey Logo"
-        className="h-12 sm:h-14 transition-transform transform hover:scale-110"
-        />
-    
-    </div>
+  <div className="relative flex items-center space-x-4">
+  <img
+    src="/anagram.png"
+    alt="Anagram Odyssey Logo"
+    className="h-12 sm:h-14 transition-transform transform hover:scale-110"
+  />
+  <span className="absolute right -translate-x-1/2 text-2xl sm:text-2xl animate-pulse">
+    🔎
+  </span>
+</div>
+
+
     <div className="flex items-center space-x-4">
     <a
               href="https://github.com/amandangol"

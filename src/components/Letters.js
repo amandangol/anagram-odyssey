@@ -20,7 +20,7 @@ function Letters({ darkMode }) {
   const [selectedWord, setSelectedWord] = useState('');
   const [definition, setDefinition] = useState('');
   const [totalResults, setTotalResults] = useState(0);
-  const [sidebarVisible, setSidebarVisible] = useState(true);
+  const [sidebarVisible, setSidebarVisible] = useState(false);
   const [activeTab, setActiveTab] = useState('anagrams');
   const [hasSearched, setHasSearched] = useState(false);
 
