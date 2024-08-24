@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FaHistory, FaTimes, FaCalendarDay, FaArrowAltCircleLeft, FaArrowCircleLeft } from 'react-icons/fa';
+import { FaHistory, FaTimes, FaCalendarDay, FaArrowCircleLeft,FaRandom,FaTrash } from 'react-icons/fa';
 import useWasmInit from '../hooks/useWasmInit';
 import AnagramsTab from './AnagramsTab';
 import FavoritesTab from './FavoritesTab';
@@ -10,7 +10,21 @@ import init, { letters, fetch_definition, FavoriteWords } from '../pkg/anagram_o
 
 
 function Letters({ darkMode }) {
-  const { wordlist, favoriteWords, wordHistory, wordOfTheDay, error: initError, setFavoriteWords } = useWasmInit();
+  const {  wordlist, 
+    favoriteWords, 
+    wordHistory, 
+    wordOfTheDay, 
+    error: initError, 
+    setFavoriteWords,
+    sortAnagrams,
+    getWordStats,
+    isPalindrome,
+    hasRepeatedLetters,
+    selectRandomWord,
+    calculateScrabbleScore,
+    calculateDifficulty,
+
+     } = useWasmInit();
   const [input, setInput] = useState('');
   const [minLength, setMinLength] = useState(3);
   const [maxResults, setMaxResults] = useState(20);
@@ -23,6 +37,11 @@ function Letters({ darkMode }) {
   const [sidebarVisible, setSidebarVisible] = useState(false);
   const [activeTab, setActiveTab] = useState('anagrams');
   const [hasSearched, setHasSearched] = useState(false);
+  const [wordInfo, setWordInfo] = useState(null);
+ 
+
+
+
 
   const useWordOfTheDay = () => {
     setInput(wordOfTheDay);
@@ -50,6 +69,8 @@ function Letters({ darkMode }) {
     }
   };
 
+  
+
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!letters || !wordlist || !wordHistory) {
@@ -63,7 +84,14 @@ function Letters({ darkMode }) {
       try {
         const result = letters(input, wordlist, minLength);
         const [wordArray, searchedWord] = result;
-        const groupedResults = groupResultsByLength(wordArray.slice(0, maxResults));
+        let groupedResults = groupResultsByLength(wordArray.slice(0, maxResults));
+        
+        // Sort anagrams
+        groupedResults = groupedResults.map(([length, words]) => [
+          length,
+          sortAnagrams(words, 'alphabetical')
+        ]);
+
         setResults(groupedResults);
         setTotalResults(wordArray.length);
         wordHistory.add(searchedWord);
@@ -77,6 +105,28 @@ function Letters({ darkMode }) {
         setIsLoading(false);
       }
     }, 500);
+  };
+  const showWordInfo = (word) => {
+    const stats = getWordStats(word);
+    const palindrome = isPalindrome(word);
+    const repeated = hasRepeatedLetters(word);
+    const scrabbleScore = calculateScrabbleScore(word);
+    const difficulty = calculateDifficulty(word);
+    setWordInfo({ word, stats, palindrome, repeated, scrabbleScore, difficulty });
+  };
+
+  const handleRandomWordSelection = () => {
+    if (!wordlist) {
+      setError('Wordlist not loaded yet');
+      return;
+    }
+    try {
+      const randomWord = selectRandomWord();
+      setInput(randomWord);
+    } catch (error) {
+      console.error('Error selecting random word:', error);
+      setError('Failed to select a random word. Please try again.');
+    }
   };
 
   const groupResultsByLength = (words) => {
@@ -185,50 +235,76 @@ function Letters({ darkMode }) {
 
           {/* Input Form */}
           <form onSubmit={handleSubmit} className="space-y-6 mb-8">
-            <div>
-              <label htmlFor="input" className={labelClass}>
-                Enter Letters
-              </label>
-              <input
-                id="input"
-                type="text"
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                className={inputClass}
-                placeholder="Enter letters"
-              />
-            </div>
-            <div className="flex space-x-4">
-              <div className="flex-1">
-                <label htmlFor="minLength" className={labelClass}>
-                  Min Length
-                </label>
-                <input
-                  id="minLength"
-                  type="number"
-                  value={minLength}
-                  onChange={(e) => setMinLength(parseInt(e.target.value))}
-                  className={inputClass}
-                  min="1"
-                  placeholder="Min Length"
-                />
-              </div>
-              <div className="flex-1">
-                <label htmlFor="maxResults" className={labelClass}>
-                  Max Results
-                </label>
-                <input
-                  id="maxResults"
-                  type="number"
-                  value={maxResults}
-                  onChange={(e) => setMaxResults(parseInt(e.target.value))}
-                  className={inputClass}
-                  min="1"
-                  placeholder="Max Results"
-                />
-              </div>
-            </div>
-            <div className="flex space-x-4">
+  <div className="relative">
+    <label htmlFor="input" className={labelClass}>
+      Enter Letters
+    </label>
+    <div className="flex items-center">
+      <input
+        id="input"
+        type="text"
+        value={input}
+        onChange={(e) => setInput(e.target.value)}
+        className={`${inputClass} flex-grow`}
+        placeholder="Enter letters"
+      />
+      <div className="flex ml-2">
+      <button
+  type="button"
+  onClick={handleRandomWordSelection}
+  className="p-3 rounded-full bg-gradient-to-r from-purple-400 via-indigo-500 to-blue-500 hover:from-purple-500 hover:via-blue-600 hover:to-purple-600 
+             transition-all duration-200 transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-offset-2 
+             focus:ring-pink-500 dark:focus:ring-offset-gray-900 shadow-lg dark:hover:bg-gray-700"
+  title="Random Word"
+>
+  <FaRandom className="text-white text-lg transform hover:rotate-180 transition-transform duration-300" />
+</button>
+
+        {/* <button
+          type="button"
+          onClick={clearFields}
+          className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-200 ml-2"
+          title="Clear"
+        >
+          <FaTrash />
+        </button> */}
+        
+      </div>
+    </div>
+  </div>
+  
+  {/* Rest of the form */}
+  <div className="flex space-x-4">
+    <div className="flex-1">
+      <label htmlFor="minLength" className={labelClass}>
+        Min Length
+      </label>
+      <input
+        id="minLength"
+        type="number"
+        value={minLength}
+        onChange={(e) => setMinLength(parseInt(e.target.value))}
+        className={inputClass}
+        min="1"
+        placeholder="Min Length"
+      />
+    </div>
+    <div className="flex-1">
+      <label htmlFor="maxResults" className={labelClass}>
+        Max Results
+      </label>
+      <input
+        id="maxResults"
+        type="number"
+        value={maxResults}
+        onChange={(e) => setMaxResults(parseInt(e.target.value))}
+        className={inputClass}
+        min="1"
+        placeholder="Max Results"
+      />
+    </div>
+  </div>
+  <div className="flex space-x-4">
               <button type="submit" className={buttonClass} disabled={isLoading}>
                 {isLoading ? 'Searching...' : 'Find Anagrams'}
               </button>
@@ -236,8 +312,7 @@ function Letters({ darkMode }) {
                 Clear
               </button>
             </div>
-          </form>
-
+</form>
           {/* Error Display */}
           {!isLoading && error && (
             <p className="text-red-500 text-lg mb-4">{error}</p>
@@ -276,6 +351,8 @@ function Letters({ darkMode }) {
                 favoriteWords={favoriteWords}
                 hasSearched={hasSearched}
                 totalResults={totalResults}
+                showWordInfo={showWordInfo}
+
               />
             </div>
             <div className={`tab-content ${activeTab === 'favorites' ? 'active' : ''}`}>
@@ -284,6 +361,8 @@ function Letters({ darkMode }) {
                 darkMode={darkMode}
                 fetchDefinition={fetchDefinition}
                 toggleFavorite={toggleFavorite}
+                showWordInfo={showWordInfo}
+
               />
             </div>
           </div>
@@ -340,8 +419,47 @@ function Letters({ darkMode }) {
           display: block;
         }
       `}</style>
+    {/* Word Info Modal */}
+{wordInfo && (
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div className={`relative max-w-md w-full rounded-lg shadow-lg ${darkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'}`}>
+      <div className="p-6">
+        <h3 className={`text-xl font-bold mb-2 ${darkMode ? 'text-white' : 'text-gray-800'}`}>
+          {wordInfo.word}
+        </h3>
+        <div className="space-y-2 mb-6">
+          <InfoRow label="Length" value={wordInfo.stats.length} />
+          <InfoRow label="Vowels" value={wordInfo.stats.vowel_count} />
+          <InfoRow label="Consonants" value={wordInfo.stats.consonant_count} />
+          <InfoRow label="Unique Letters" value={wordInfo.stats.unique_letters} />
+          <InfoRow label="Is Palindrome" value={wordInfo.palindrome ? 'Yes' : 'No'} />
+          <InfoRow label="Has Repeated Letters" value={wordInfo.repeated ? 'Yes' : 'No'} />
+          <InfoRow label="Scrabble Score" value={wordInfo.scrabbleScore} />
+          <InfoRow label="Difficulty" value={wordInfo.difficulty} />
+        </div>
+        <button
+          onClick={() => setWordInfo(null)}
+          className={`w-full py-2 px-4 rounded-md transition-colors ${
+            darkMode
+              ? 'bg-gray-700 hover:bg-gray-600 text-white'
+              : 'bg-gray-200 hover:bg-gray-300 text-gray-800'
+          }`}
+        >
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
     </div>
   );
 }
+const InfoRow = ({ label, value }) => (
+  <div className="flex justify-between">
+    <span className="font-medium">{label}:</span>
+    <span className="font-bold">{value}</span>
+  </div>
+);
 
 export default Letters;
