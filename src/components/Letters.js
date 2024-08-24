@@ -143,8 +143,8 @@ function Letters({ darkMode }) {
 
   const clearFields = () => {
     setInput('');
-    setMinLength(4);
-    setMaxResults(10);
+    setMinLength(3);
+    setMaxResults(20);
     setResults([]);
     setTotalResults(0);
     setError('');
@@ -273,7 +273,6 @@ function Letters({ darkMode }) {
     </div>
   </div>
   
-  {/* Rest of the form */}
   <div className="flex space-x-4">
     <div className="flex-1">
       <label htmlFor="minLength" className={labelClass}>
@@ -431,7 +430,6 @@ function Letters({ darkMode }) {
           <InfoRow label="Length" value={wordInfo.stats.length} />
           <InfoRow label="Vowels" value={wordInfo.stats.vowel_count} />
           <InfoRow label="Consonants" value={wordInfo.stats.consonant_count} />
-          <InfoRow label="Unique Letters" value={wordInfo.stats.unique_letters} />
           <InfoRow label="Is Palindrome" value={wordInfo.palindrome ? 'Yes' : 'No'} />
           <InfoRow label="Has Repeated Letters" value={wordInfo.repeated ? 'Yes' : 'No'} />
           <InfoRow label="Scrabble Score" value={wordInfo.scrabbleScore} />

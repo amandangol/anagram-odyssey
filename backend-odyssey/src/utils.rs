@@ -1,6 +1,8 @@
 use std::collections::HashSet;
+use std::collections::HashMap;
 use rand::prelude::*;
 use wasm_bindgen::prelude::*;
+use once_cell::sync::Lazy;
 use serde::{Serialize, Deserialize};
 
 #[wasm_bindgen]
@@ -80,23 +82,46 @@ pub fn select_random_word(wordlist: &str) -> String {
 pub fn calculate_difficulty(word: &str) -> u8 {
     let length_score = word.len() as u8;
     let unique_letters = word.chars().collect::<HashSet<_>>().len() as u8;
-    let rare_letters_score = word.chars()
-        .filter(|&c| "jqxzJQXZ".contains(c))
-        .count() as u8 * 2;
     
-    length_score + unique_letters + rare_letters_score
+    // Letter frequency in English
+    let freq: HashMap<char, f32> = [
+        ('e', 12.70), ('t', 9.06), ('a', 8.17), ('o', 7.51), ('i', 6.97),
+        ('n', 6.75), ('s', 6.33), ('h', 6.09), ('r', 5.99), ('d', 4.25),
+        ('l', 4.03), ('c', 2.78), ('u', 2.76), ('m', 2.41), ('w', 2.36),
+        ('f', 2.23), ('g', 2.02), ('y', 1.97), ('p', 1.93), ('b', 1.29),
+        ('v', 0.98), ('k', 0.77), ('j', 0.15), ('x', 0.15), ('q', 0.10),
+        ('z', 0.07)
+    ].iter().cloned().collect();
+
+    let rarity_score: f32 = word.chars()
+        .map(|c| 13.0 - freq.get(&c.to_ascii_lowercase()).unwrap_or(&0.0))
+        .sum();
+
+    let consecutive_consonants = word.to_lowercase()
+        .chars()
+        .collect::<Vec<char>>()
+        .windows(3)
+        .filter(|w| w.iter().all(|&c| !"aeiou".contains(c)))
+        .count() as u8;
+
+    (length_score + unique_letters + (rarity_score as u8) + (consecutive_consonants * 2)).min(255)
 }
+
+static SCRABBLE_SCORES: Lazy<HashMap<char, u16>> = Lazy::new(|| {
+    let mut m = HashMap::new();
+    for c in "aeioulnstr".chars() { m.insert(c, 1); }
+    for c in "dg".chars() { m.insert(c, 2); }
+    for c in "bcmp".chars() { m.insert(c, 3); }
+    for c in "fhvwy".chars() { m.insert(c, 4); }
+    m.insert('k', 5);
+    for c in "jx".chars() { m.insert(c, 8); }
+    for c in "qz".chars() { m.insert(c, 10); }
+    m
+});
 
 #[wasm_bindgen]
 pub fn calculate_scrabble_score(word: &str) -> u16 {
-    word.chars().map(|c| match c.to_ascii_lowercase() {
-        'a' | 'e' | 'i' | 'o' | 'u' | 'l' | 'n' | 's' | 't' | 'r' => 1,
-        'd' | 'g' => 2,
-        'b' | 'c' | 'm' | 'p' => 3,
-        'f' | 'h' | 'v' | 'w' | 'y' => 4,
-        'k' => 5,
-        'j' | 'x' => 8,
-        'q' | 'z' => 10,
-        _ => 0,
-    }).sum()
+    word.chars()
+        .map(|c| SCRABBLE_SCORES.get(&c.to_ascii_lowercase()).copied().unwrap_or(0))
+        .sum()
 }

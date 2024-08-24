@@ -94,26 +94,6 @@ function App() {
           <div className="flex flex-col md:flex-row justify-center items-center space-x-0 md:space-x-4">
             <p className="mb-4 md:mb-0">&copy; 2024 Anagram Odyssey by 4m.4n. All rights reserved.</p>
             <div className="flex space-x-4">
-              {/* <a
-                href="https://github.com/amandangol"
-                target="_blank"
-                rel="noopener noreferrer"
-                className={`hover:text-indigo-500 transition-colors duration-300 ${
-                  darkMode ? 'text-gray-300' : 'text-gray-600'
-                }`}
-              >
-                <FaGithub size={24} />
-              </a> */}
-              {/* <a
-                href="https://twitter.com/amand4ngol"
-                target="_blank"
-                rel="noopener noreferrer"
-                className={`hover:text-indigo-500 transition-colors duration-300 ${
-                  darkMode ? 'text-gray-300' : 'text-gray-600'
-                }`}
-              >
-                <FaTwitter size={24} />
-              </a> */}
             </div>
           </div>
         </div>

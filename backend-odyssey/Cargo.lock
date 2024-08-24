@@ -26,6 +26,7 @@ dependencies = [
  "flate2",
  "getrandom",
  "js-sys",
+ "once_cell",
  "rand",
  "regex",
  "serde",
