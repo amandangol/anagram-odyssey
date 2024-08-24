@@ -25,6 +25,9 @@ pub use utils::{
     WordStats,
     is_palindrome,
     has_repeated_letters,
-    select_random_word
+    select_random_word,
+    calculate_scrabble_score,
+    calculate_difficulty
+
    
 };
