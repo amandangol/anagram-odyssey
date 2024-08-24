@@ -18,7 +18,7 @@ chrono = { version = "0.4", features = ["serde", "wasmbind"] }
 rand = { version = "0.8", features = ["small_rng"] }
 getrandom = { version = "0.2", features = ["js"] }
 wasm-bindgen-futures = "0.4"
-web-sys = { version = "0.3", features = ["Request", "RequestInit", "RequestMode", "Response", "Window"] }
+web-sys = { version = "0.3", features = ["Request", "RequestInit", "RequestMode", "Response", "Window", "console"] }
 js-sys = "0.3"
 
 [dev-dependencies]
