@@ -75,4 +75,8 @@ Anagram Odyssey is an innovative web application designed for word enthusiasts, 
 
 Anagram Odyssey is more than just a tool—it's a gateway to word discovery and puzzle-solving mastery. Whether you're looking to improve your vocabulary, find words for a game, or simply explore the vast world of anagrams, Anagram Odyssey provides the speed, efficiency, and user experience needed to make your journey enjoyable and productive.
 
+<img src="https://github.com/user-attachments/assets/680c2a21-eaf9-49a2-b8d9-4723d857be37" alt="image"  height="500">
+
+
+
 **Video Demo**: [video demo to be added...]
