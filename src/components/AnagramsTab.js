@@ -1,7 +1,8 @@
 import React from 'react';
-import { FaInfoCircle, FaHeart, FaChartBar } from 'react-icons/fa';
+import { FaInfoCircle, FaHeart, FaChartBar,FaShare } from 'react-icons/fa';
 
 const AnagramsTab = ({ results, isLoading, error, darkMode, fetchDefinition, toggleFavorite, favoriteWords, hasSearched, totalResults, showWordInfo }) => (
+  
   <div>
     {isLoading && (
       <p className={`text-lg ${darkMode ? 'text-gray-400' : 'text-gray-700'}`}>

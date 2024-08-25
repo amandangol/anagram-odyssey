@@ -11,7 +11,8 @@ import init, {
   select_random_word,
   calculate_scrabble_score,
   calculate_difficulty,
-  SortCriteria
+  SortCriteria,
+  generate_shareable_content
 } from '../pkg/anagram_odyssey.js';
 
 const useWasmInit = () => {
@@ -62,7 +63,9 @@ const useWasmInit = () => {
     selectRandomWord: () => select_random_word(wordlist),
     calculateScrabbleScore: calculate_scrabble_score,
     calculateDifficulty: calculate_difficulty,
-    SortCriteria
+    SortCriteria,
+    generateShareableContent: generate_shareable_content,
+
   };
 };
 

@@ -1,20 +1,20 @@
-import React, { useState } from 'react';
-import { FaHistory, FaTimes, FaCalendarDay, FaArrowCircleLeft,FaRandom,FaTrash } from 'react-icons/fa';
+import React, { useState, useCallback, useMemo } from 'react';
+import { FaHistory, FaTimes, FaCalendarDay, FaArrowCircleLeft, FaRandom, FaShare,FaCopy,FaShareAlt } from 'react-icons/fa';
 import useWasmInit from '../hooks/useWasmInit';
 import AnagramsTab from './AnagramsTab';
 import FavoritesTab from './FavoritesTab';
 import TabButton from './TabButton';
 import '../styles/Letters.css';
 
-import init, { letters, fetch_definition, FavoriteWords } from '../pkg/anagram_odyssey.js';
-
+import { letters, fetch_definition, FavoriteWords,generateShareableContent } from '../pkg/anagram_odyssey.js';
 
 function Letters({ darkMode }) {
-  const {  wordlist, 
-    favoriteWords, 
-    wordHistory, 
-    wordOfTheDay, 
-    error: initError, 
+  const {
+    wordlist,
+    favoriteWords,
+    wordHistory,
+    wordOfTheDay,
+    error: initError,
     setFavoriteWords,
     sortAnagrams,
     getWordStats,
@@ -23,8 +23,9 @@ function Letters({ darkMode }) {
     selectRandomWord,
     calculateScrabbleScore,
     calculateDifficulty,
+    generateShareableContent
+  } = useWasmInit();
 
-     } = useWasmInit();
   const [input, setInput] = useState('');
   const [minLength, setMinLength] = useState(3);
   const [maxResults, setMaxResults] = useState(20);
@@ -38,40 +39,66 @@ function Letters({ darkMode }) {
   const [activeTab, setActiveTab] = useState('anagrams');
   const [hasSearched, setHasSearched] = useState(false);
   const [wordInfo, setWordInfo] = useState(null);
- 
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [shareContent, setShareContent] = useState('');
+  const [hasResults, setHasResults] = useState(false);
 
 
 
-
-  const useWordOfTheDay = () => {
+  const useWordOfTheDay = useCallback(() => {
     setInput(wordOfTheDay);
-  };
+  }, [wordOfTheDay]);
 
-  const toggleFavorite = (word) => {
-    if (favoriteWords.contains(word)) {
-      favoriteWords.remove(word);
-    } else {
-      favoriteWords.add(word);
-    }
-    // Update favoriteWords state
-    setFavoriteWords(new FavoriteWords(favoriteWords.get_all()));
-  };
-  const fetchDefinition = async (word) => {
+  const toggleFavorite = useCallback((word) => {
+    setFavoriteWords((prevFavorites) => {
+      const newFavorites = new FavoriteWords(prevFavorites.get_all());
+      if (newFavorites.contains(word)) {
+        newFavorites.remove(word);
+      } else {
+        newFavorites.add(word);
+      }
+      return newFavorites;
+    });
+  }, [setFavoriteWords]);
+
+  const fetchDefinition = useCallback(async (word) => {
     setSelectedWord(word);
     setDefinition('Loading...');
     try {
       const result = await fetch_definition(word);
-      const def = result.toString();
-      setDefinition(def === "No definition found" ? def : def);
+      setDefinition(result.toString());
     } catch (error) {
       console.error('Error fetching definition:', error);
       setDefinition('Failed to fetch definition');
     }
-  };
+  }, []);
 
+  const handleShare = useCallback(() => {
+    const allAnagrams = results.flatMap(([_, words]) => words);
+    const shareableContent = generateShareableContent(input, allAnagrams, wordOfTheDay);
+    const { original_input, anagrams, word_of_the_day } = shareableContent;
+    
+    const content = `Anagram Odyssey\n\nI found ${anagrams.length} anagrams for "${original_input}":\n\n${anagrams.join(', ')}\n\nWord of the day: ${word_of_the_day}\n\nCheck it out at https://anagram-odyssey.vercel.app`;
   
+    setShareContent(content);
+    setShowShareModal(true);
+  }, [input, results, wordOfTheDay]);
 
-  const handleSubmit = (e) => {
+  const handleNativeShare = useCallback(async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: 'Anagram Odyssey Results',
+          text: shareContent,
+          url: 'https://anagram-odyssey.vercel.app'
+        });
+      } catch (error) {
+        console.error('Error sharing:', error);
+      }
+    }
+  }, [shareContent]);
+
+  const handleSubmit = useCallback((e) => {
     e.preventDefault();
     if (!letters || !wordlist || !wordHistory) {
       setError('WASM module not yet initialized or wordlist not loaded');
@@ -82,40 +109,41 @@ function Letters({ darkMode }) {
     setHasSearched(true);
     setTimeout(() => {
       try {
-        const result = letters(input, wordlist, minLength);
-        const [wordArray, searchedWord] = result;
+        const [wordArray, searchedWord] = letters(input, wordlist, minLength);
         let groupedResults = groupResultsByLength(wordArray.slice(0, maxResults));
         
-        // Sort anagrams
         groupedResults = groupedResults.map(([length, words]) => [
           length,
           sortAnagrams(words, 'alphabetical')
         ]);
-
+  
         setResults(groupedResults);
         setTotalResults(wordArray.length);
         wordHistory.add(searchedWord);
+        setHasResults(wordArray.length > 0); // Set hasResults based on whether we found any anagrams
         if (wordArray.length === 0) {
           setError('No words found. Try different letters or reduce the minimum length.');
         }
       } catch (error) {
         console.error('Error calling letters function:', error);
         setError('An error occurred while searching for words.');
+        setHasResults(false); // Ensure hasResults is false if there's an error
       } finally {
         setIsLoading(false);
       }
     }, 500);
-  };
-  const showWordInfo = (word) => {
+  }, [input, wordlist, minLength, maxResults, sortAnagrams, wordHistory]);
+
+  const showWordInfo = useCallback((word) => {
     const stats = getWordStats(word);
     const palindrome = isPalindrome(word);
     const repeated = hasRepeatedLetters(word);
     const scrabbleScore = calculateScrabbleScore(word);
     const difficulty = calculateDifficulty(word);
     setWordInfo({ word, stats, palindrome, repeated, scrabbleScore, difficulty });
-  };
+  }, [getWordStats, isPalindrome, hasRepeatedLetters, calculateScrabbleScore, calculateDifficulty]);
 
-  const handleRandomWordSelection = () => {
+  const handleRandomWordSelection = useCallback(() => {
     if (!wordlist) {
       setError('Wordlist not loaded yet');
       return;
@@ -127,9 +155,19 @@ function Letters({ darkMode }) {
       console.error('Error selecting random word:', error);
       setError('Failed to select a random word. Please try again.');
     }
-  };
+  }, [wordlist, selectRandomWord]);
 
-  const groupResultsByLength = (words) => {
+  const clearFields = useCallback(() => {
+    setInput('');
+    setMinLength(3);
+    setMaxResults(20);
+    setResults([]);
+    setTotalResults(0);
+    setError('');
+    setHasResults(false); 
+  }, []);
+
+  const groupResultsByLength = useCallback((words) => {
     const grouped = {};
     words.forEach(word => {
       const length = word.length;
@@ -139,41 +177,34 @@ function Letters({ darkMode }) {
       grouped[length].push(word);
     });
     return Object.entries(grouped).sort((a, b) => b[0] - a[0]);
-  };
+  }, []);
 
-  const clearFields = () => {
-    setInput('');
-    setMinLength(3);
-    setMaxResults(20);
-    setResults([]);
-    setTotalResults(0);
-    setError('');
-  };
+  const inputClass = useMemo(() => `
+    border p-3 w-full rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500
+    ${darkMode ? 'bg-gray-800 border-gray-700 text-white' : 'bg-white border-gray-300 text-gray-900'}
+  `, [darkMode]);
 
-  const inputClass = `
-  border p-3 w-full rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500
-  ${darkMode ? 'bg-gray-800 border-gray-700 text-white' : 'bg-white border-gray-300 text-gray-900'}
-`;
+  const buttonClass = useMemo(() => `
+    px-6 py-3 rounded-lg font-semibold shadow-md hover:shadow-lg transition-all duration-300 
+    ${darkMode ? 'bg-indigo-600 text-white hover:bg-indigo-700' : 'bg-indigo-500 text-white hover:bg-indigo-600'}
+  `, [darkMode]);
 
-
-  const buttonClass = `px-6 py-3 rounded-lg font-semibold shadow-md hover:shadow-lg transition-all duration-300 ${darkMode ? 'bg-indigo-600 text-white hover:bg-indigo-700' : 'bg-indigo-500 text-white hover:bg-indigo-600'
-    }`;
-
-  const labelClass = `
-  block text-sm font-medium mb-1
-  ${darkMode ? 'text-gray-400' : 'text-gray-700'}
-`;
+  const labelClass = useMemo(() => `
+    block text-sm font-medium mb-1
+    ${darkMode ? 'text-gray-400' : 'text-gray-700'}
+  `, [darkMode]);
 
   return (
     <div className="transition-colors duration-300">
       <div className="flex h-full">
       <button
   onClick={() => setSidebarVisible(!sidebarVisible)}
+  title=  {sidebarVisible ? 'Hide Word History' : 'Show Word History'}
   className={`fixed top-24 left-4 z-20 p-3 rounded-full transition-all duration-300 ${
     darkMode ? 'bg-gray-700 text-white hover:bg-gray-600' : 'bg-white text-gray-800 hover:bg-gray-100'
   } shadow-lg ${sidebarVisible ? 'translate-x-64' : 'translate-x-0'}`}
 >
-  <FaArrowCircleLeft className={`transform transition-transform duration-300 ${sidebarVisible ? 'rotate-180' : ''}`} />
+  <FaArrowCircleLeft className={`transform transition-transform duration-300 ${sidebarVisible ? 'rotate-180' : ''}`}   />
 </button>
 
         {/* Sidebar */}
@@ -303,15 +334,57 @@ function Letters({ darkMode }) {
       />
     </div>
   </div>
-  <div className="flex space-x-4">
-              <button type="submit" className={buttonClass} disabled={isLoading}>
-                {isLoading ? 'Searching...' : 'Find Anagrams'}
-              </button>
-              <button type="button" onClick={clearFields} className={`${buttonClass} bg-gray-500 hover:bg-gray-600`}>
-                Clear
-              </button>
-            </div>
-</form>
+  <div className="flex flex-wrap gap-4 mt-6">
+  <button 
+    type="submit" 
+    className={`${buttonClass} flex-grow sm:flex-grow-0 bg-indigo-600 hover:bg-indigo-700 text-white`}
+    disabled={isLoading}
+  >
+    {isLoading ? (
+      <span className="flex items-center justify-center">
+        <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        Searching...
+      </span>
+    ) : (
+      <span className="flex items-center justify-center">
+        <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        </svg>
+        Find Anagrams
+      </span>
+    )}
+  </button>
+  
+  <button 
+  type="button" 
+  onClick={clearFields} 
+  className={`${buttonClass} flex-grow sm:flex-grow-0 bg-red-500 hover:bg-red-600 text-white`}
+>
+  <span className="flex items-center justify-center">
+    <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+    </svg>
+    Clear
+  </span>
+</button>
+
+  
+  {hasResults && ( // Only show the share button if we have results
+    <button 
+      type="button" 
+      onClick={handleShare} 
+      className={`${buttonClass} flex-grow sm:flex-grow-0 bg-green-500 hover:bg-green-600 text-white`}
+    >
+      <span className="flex items-center justify-center">
+        <FaShare className="mr-2" /> Share
+      </span>
+    </button>
+  )}
+</div>
+              </form>
           {/* Error Display */}
           {!isLoading && error && (
             <p className="text-red-500 text-lg mb-4">{error}</p>
@@ -393,13 +466,7 @@ function Letters({ darkMode }) {
                     Close
                   </button>
                 </div>
-                <button
-                  onClick={() => setSelectedWord('')}
-                  className={`absolute top-3 right-3 text-2xl ${darkMode ? 'text-gray-300 hover:text-white' : 'text-gray-600 hover:text-gray-800'
-                    }`}
-                >
-                  <FaTimes />
-                </button>
+              
               </div>
             </div>
           )}
@@ -449,8 +516,63 @@ function Letters({ darkMode }) {
     </div>
   </div>
 )}
-
+  {showShareModal && (
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div className={`relative max-w-md w-full rounded-lg shadow-xl ${darkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'}`}>
+      <div className="p-6">
+        <h3 className="text-2xl font-bold mb-4 flex items-center">
+          <FaShare className="mr-2 text-indigo-500" />
+          Share Results
+        </h3>
+        <textarea
+          className={`w-full h-48 p-3 rounded-md mb-4 border ${
+            darkMode 
+              ? 'bg-gray-700 text-white border-gray-600 focus:border-indigo-500' 
+              : 'bg-gray-100 text-gray-800 border-gray-300 focus:border-indigo-500'
+          } focus:ring-2 focus:ring-indigo-500 focus:ring-opacity-50 transition-all duration-200 ease-in-out`}
+          value={shareContent}
+          readOnly
+        />
+        <div className="flex flex-wrap justify-end gap-3">
+          <button
+            onClick={() => setShowShareModal(false)}
+            className={`py-2 px-4 rounded-md transition-colors duration-200 ease-in-out flex items-center ${
+              darkMode ? 'bg-gray-700 hover:bg-gray-600 text-gray-300' : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
+            }`}
+          >
+            <FaTimes className="mr-2" /> Close
+          </button>
+          <button
+            onClick={() => {
+              navigator.clipboard.writeText(shareContent);
+              setShowShareModal(false);
+            }}
+            className={`py-2 px-4 rounded-md transition-colors duration-200 ease-in-out flex items-center ${
+              darkMode ? 'bg-indigo-600 hover:bg-indigo-700' : 'bg-indigo-500 hover:bg-indigo-600'
+            } text-white`}
+          >
+            <FaCopy className="mr-2" /> Copy to Clipboard
+          </button>
+          {navigator.share && (
+            <button
+              onClick={() => {
+                handleNativeShare();
+                setShowShareModal(false);
+              }}
+              className={`py-2 px-4 rounded-md transition-colors duration-200 ease-in-out flex items-center ${
+                darkMode ? 'bg-green-600 hover:bg-green-700' : 'bg-green-500 hover:bg-green-600'
+              } text-white`}
+            >
+              <FaShareAlt className="mr-2" /> Share
+            </button>
+          )}
+        </div>
+      </div>
+     
     </div>
+  </div>
+)}
+   </div>
   );
 }
 const InfoRow = ({ label, value }) => (
