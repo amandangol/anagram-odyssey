@@ -6,14 +6,21 @@ const FavoritesTab = ({ favoriteWords, darkMode, fetchDefinition, toggleFavorite
     {favoriteWords && favoriteWords.get_all().length > 0 ? (
       <ul className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
         {favoriteWords.get_all().map((word, index) => (
-          <li key={index} className={`p-3 rounded-lg flex items-center justify-between 
-            transition-all duration-300 hover:shadow-md hover:-translate-y-1 ${
-            darkMode ? 'bg-gray-800 hover:bg-gray-750' : 'bg-white hover:bg-gray-50'
-          }`}>
-            <span className={`text-md font-medium ${darkMode ? 'text-gray-200' : 'text-gray-700'}`}>
+          <li
+            key={index}
+            className={`p-3 rounded-lg flex flex-col md:flex-row md:items-center justify-between 
+              transition-all duration-300 hover:shadow-md hover:-translate-y-1 ${
+                darkMode ? 'bg-gray-800 hover:bg-gray-750' : 'bg-white hover:bg-gray-50'
+              }`}
+          >
+            <span
+              className={`text-md font-medium mb-2 md:mb-0 ${
+                darkMode ? 'text-gray-200' : 'text-gray-700'
+              }`}
+            >
               {word}
             </span>
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center justify-center space-x-4 md:space-x-2">
               <button
                 onClick={() => fetchDefinition(word)}
                 className={`focus:outline-none transition-colors duration-200 ${
@@ -38,7 +45,7 @@ const FavoritesTab = ({ favoriteWords, darkMode, fetchDefinition, toggleFavorite
                 }`}
                 title="Show word info"
               >
-                <FaChartBar size={16} />
+                <FaChartBar size={17} />
               </button>
             </div>
           </li>
