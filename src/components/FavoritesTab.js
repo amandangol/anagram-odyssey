@@ -7,7 +7,7 @@ const FavoritesTab = ({ favoriteWords, darkMode, fetchDefinition, toggleFavorite
       <ul className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
         {favoriteWords.get_all().map((word, index) => (
           <li key={index} className={`p-3 rounded-lg flex items-center justify-between 
-            transition-all duration-200 hover:shadow-md ${
+            transition-all duration-300 hover:shadow-md hover:-translate-y-1 ${
             darkMode ? 'bg-gray-800 hover:bg-gray-750' : 'bg-white hover:bg-gray-50'
           }`}>
             <span className={`text-md font-medium ${darkMode ? 'text-gray-200' : 'text-gray-700'}`}>

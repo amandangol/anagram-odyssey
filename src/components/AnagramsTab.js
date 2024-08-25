@@ -17,57 +17,49 @@ const AnagramsTab = ({ results, isLoading, error, darkMode, fetchDefinition, tog
     {results.length > 0 ? (
       results.map(([length, words]) => (
         <div key={length} className="mb-6">
-        <h4 className={`text-lg font-bold mb-3 inline-block border-b-2 ${
-          darkMode ? 'text-teal-300 border-teal-400' : 'text-teal-600 border-teal-500'
-        }`}>
-          {length}-Letter Words
-        </h4>
-        <ul className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+        <h4 className={`text-lg font-semibold mb-2 border-b pb-1 ${darkMode ? 'text-gray-300 border-gray-500' : 'text-gray-700 border-gray-300'}`}>
+    {length}-Letter Words
+  </h4>
+        <ul className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
           {words.map((word, index) => (
-            <li key={index} className={`p-3 rounded-lg flex items-center justify-between 
-              transition-all duration-200 hover:shadow-md ${
-              darkMode ? 'bg-gray-800 hover:bg-gray-750' : 'bg-white hover:bg-gray-50'
-            }`}>
-              <span className={`text-md font-medium ${darkMode ? 'text-gray-200' : 'text-gray-700'}`}>
+            <li key={index} className={`p-4 rounded-lg flex items-center justify-between 
+              transition-all duration-300 hover:shadow-lg hover:-translate-y-1 ${darkMode ? 'bg-gray-900' : 'bg-white'} 
+              ${darkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-100'}`}>
+              <span className={`text-lg font-medium ${darkMode ? 'text-gray-100' : 'text-gray-800'}`}>
                 {word}
               </span>
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-3">
                 <button
                   onClick={() => fetchDefinition(word)}
-                  className={`focus:outline-none transition-colors duration-200 ${
-                    darkMode ? 'text-blue-400 hover:text-blue-300' : 'text-blue-500 hover:text-blue-600'
-                  }`}
+                  className={`focus:outline-none ${darkMode ? 'text-blue-300 hover:text-blue-200' : 'text-blue-600 hover:text-blue-500'}`}
                   title="Get definition"
                 >
-                  <FaInfoCircle size={16} />
+                  <FaInfoCircle size={18} />
                 </button>
                 <button
                   onClick={() => toggleFavorite(word)}
-                  className={`focus:outline-none transition-colors duration-200 ${
-                    favoriteWords && favoriteWords.contains(word) 
-                      ? 'text-pink-500 hover:text-pink-400' 
-                      : darkMode 
-                        ? 'text-gray-400 hover:text-gray-300' 
-                        : 'text-gray-600 hover:text-gray-500'
-                  }`}
+                  className={`focus:outline-none ${favoriteWords && favoriteWords.contains(word)
+                    ? 'text-pink-500 hover:text-pink-400'
+                    : darkMode
+                      ? 'text-gray-400 hover:text-gray-300'
+                      : 'text-gray-500 hover:text-gray-400'}`}
                   title="Toggle favorite"
                 >
-                  <FaHeart size={16} />
+                  <FaHeart size={18} />
                 </button>
                 <button
                   onClick={() => showWordInfo(word)}
-                  className={`focus:outline-none transition-colors duration-200 ${
-                    darkMode ? 'text-green-400 hover:text-green-300' : 'text-green-500 hover:text-green-600'
-                  }`}
+                  className={`focus:outline-none ${darkMode ? 'text-green-400 hover:text-green-300' : 'text-green-600 hover:text-green-500'}`}
                   title="Show word info"
                 >
-                  <FaChartBar size={17} />
+                  <FaChartBar size={18} />
                 </button>
               </div>
             </li>
           ))}
         </ul>
       </div>
+      
       ))
     ) : (
       !isLoading && !error && (
