@@ -125,3 +125,4 @@ pub fn calculate_scrabble_score(word: &str) -> u16 {
         .map(|c| SCRABBLE_SCORES.get(&c.to_ascii_lowercase()).copied().unwrap_or(0))
         .sum()
 }
+

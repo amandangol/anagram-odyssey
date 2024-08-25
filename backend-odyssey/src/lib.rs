@@ -6,6 +6,7 @@ mod storage;
 mod word_history;
 mod word_of_day;
 mod utils; 
+mod sharable;
 
 pub use definition::fetch_definition;
 pub use favorite_words::{FavoriteWords, clear_favorite_words};
@@ -13,7 +14,6 @@ pub use letters::letters;
 pub use word_history::WordHistory;
 pub use word_of_day::get_word_of_the_day;
 use wasm_bindgen::prelude::*;
-
 
 pub use storage::*;
 
@@ -28,6 +28,10 @@ pub use utils::{
     select_random_word,
     calculate_scrabble_score,
     calculate_difficulty
+};
 
+pub use sharable::{
+    generate_shareable_content,
+    ShareableContent,
    
 };
