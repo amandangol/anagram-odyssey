@@ -22,7 +22,7 @@ const FavoritesTab = ({ favoriteWords, darkMode, fetchDefinition, toggleFavorite
           {localFavorites.map((word, index) => (
             <li
               key={index}
-              className={`p-3 rounded-lg flex flex-col md:flex-row md:items-center justify-between 
+              className={`p-3 rounded-lg flex flex-col md:flex-row md:items-start justify-between 
                 transition-all duration-300 hover:shadow-md hover:-translate-y-1 ${
                   darkMode ? 'bg-gray-800 hover:bg-gray-750' : 'bg-white hover:bg-gray-50'
                 }`}
@@ -34,7 +34,7 @@ const FavoritesTab = ({ favoriteWords, darkMode, fetchDefinition, toggleFavorite
               >
                 {word}
               </span>
-              <div className="flex items-center justify-center space-x-4 md:space-x-2">
+              <div className="flex items-center space-x-3 sm:space-x-2">
                 <button
                   onClick={() => fetchDefinition(word)}
                   className={`focus:outline-none transition-colors duration-200 ${
