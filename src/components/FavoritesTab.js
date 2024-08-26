@@ -2,69 +2,78 @@ import React, { useState, useEffect } from 'react';
 import { FaInfoCircle, FaHeart, FaChartBar } from 'react-icons/fa';
 
 const FavoritesTab = ({ favoriteWords, darkMode, fetchDefinition, toggleFavorite, showWordInfo }) => {
-  const [localFavorites, setLocalFavorites] = useState([]);
+  const [groupedFavorites, setGroupedFavorites] = useState({});
 
   useEffect(() => {
     if (favoriteWords && typeof favoriteWords.get_all === 'function') {
-      setLocalFavorites(favoriteWords.get_all());
+      const allFavorites = favoriteWords.get_all();
+      const grouped = allFavorites.reduce((acc, word) => {
+        const length = word.length;
+        if (!acc[length]) acc[length] = [];
+        acc[length].push(word);
+        return acc;
+      }, {});
+      setGroupedFavorites(grouped);
     }
   }, [favoriteWords]);
 
-  const handleToggleFavorite = (word) => {
-    toggleFavorite(word);
-    setLocalFavorites(prevFavorites => prevFavorites.filter(w => w !== word));
-  };
-
   return (
-    <div className="h-full">
-      {localFavorites.length > 0 ? (
-        <ul className="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-4 gap-3">
-          {localFavorites.map((word, index) => (
-            <li
-              key={index}
-              className={`p-3 rounded-lg flex flex-col md:flex-row md:items-start justify-between 
-                transition-all duration-300 hover:shadow-md hover:-translate-y-1 ${
-                  darkMode ? 'bg-gray-800 hover:bg-gray-750' : 'bg-white hover:bg-gray-50'
-                }`}
-            >
-              <span
-                className={`text-md font-medium mb-2 md:mb-0 ${
-                  darkMode ? 'text-gray-200' : 'text-gray-700'
-                }`}
-              >
-                {word}
-              </span>
-              <div className="flex items-center space-x-3 sm:space-x-2">
-                <button
-                  onClick={() => fetchDefinition(word)}
-                  className={`focus:outline-none transition-colors duration-200 ${
-                    darkMode ? 'text-blue-400 hover:text-blue-300' : 'text-blue-500 hover:text-blue-600'
-                  }`}
-                  title="Get definition"
+    <div className="w-full">
+      {Object.keys(groupedFavorites).length > 0 ? (
+        Object.entries(groupedFavorites).sort(([a], [b]) => b - a).map(([length, words]) => (
+          <div key={length} className="mb-6">
+            <h4 className={`text-lg font-semibold mb-2 border-b pb-1 ${darkMode ? 'text-gray-300 border-gray-500' : 'text-gray-700 border-gray-300'}`}>
+              {length}-Letter Words
+            </h4>
+            <ul className="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-4 gap-3">
+              {words.map((word, index) => (
+                <li
+                  key={index}
+                  className={`p-3 rounded-lg flex flex-col sm:flex-row items-start sm:items-center justify-between 
+                    transition-all duration-300 hover:shadow-md hover:-translate-y-0.5 ${
+                      darkMode ? 'bg-gray-800 hover:bg-gray-750' : 'bg-white hover:bg-gray-50'
+                    }`}
                 >
-                  <FaInfoCircle size={18} />
-                </button>
-                <button
-                  onClick={() => handleToggleFavorite(word)}
-                  className="focus:outline-none transition-colors duration-200 
-                    text-pink-500 hover:text-pink-400"
-                  title="Toggle favorite"
-                >
-                  <FaHeart size={18} />
-                </button>
-                <button
-                  onClick={() => showWordInfo(word)}
-                  className={`focus:outline-none transition-colors duration-200 ${
-                    darkMode ? 'text-green-400 hover:text-green-300' : 'text-green-500 hover:text-green-600'
-                  }`}
-                  title="Show word info"
-                >
-                  <FaChartBar size={18} />
-                </button>
-              </div>
-            </li>
-          ))}
-        </ul>
+                  <span
+                    className={`text-md font-medium mb-2 sm:mb-0 ${
+                      darkMode ? 'text-gray-200' : 'text-gray-700'
+                    }`}
+                  >
+                    {word}
+                  </span>
+                  <div className="flex items-center space-x-3 sm:space-x-2">
+                    <button
+                      onClick={() => fetchDefinition(word)}
+                      className={`p-1 rounded-full focus:outline-none transition-colors duration-200 ${
+                        darkMode ? 'text-blue-400 hover:text-blue-300 hover:bg-blue-900' : 'text-blue-500 hover:text-blue-600 hover:bg-blue-100'
+                      }`}
+                      title="Get definition"
+                    >
+                      <FaInfoCircle size={18} />
+                    </button>
+                    <button
+                      onClick={() => toggleFavorite(word)}
+                      className="p-1 rounded-full focus:outline-none transition-colors duration-200 
+                        text-pink-500 hover:text-pink-400 hover:bg-pink-100"
+                      title="Remove from favorites"
+                    >
+                      <FaHeart size={18} />
+                    </button>
+                    <button
+                      onClick={() => showWordInfo(word)}
+                      className={`p-1 rounded-full focus:outline-none transition-colors duration-200 ${
+                        darkMode ? 'text-green-400 hover:text-green-300 hover:bg-green-900' : 'text-green-500 hover:text-green-600 hover:bg-green-100'
+                      }`}
+                      title="Show word info"
+                    >
+                      <FaChartBar size={18} />
+                    </button>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))
       ) : (
         <p className={`text-lg ${darkMode ? 'text-gray-400' : 'text-gray-700'}`}>
           No favorite words added yet. Add words to your favorites to see them here.

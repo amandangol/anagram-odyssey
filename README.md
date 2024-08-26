@@ -53,6 +53,7 @@ With its combination of speed, functionality, and user-friendly design, Anagram 
 ## Data Sources
 
 **Dictionary API**: Anagram Odyssey uses the Merriam-Webster Dictionary API for word definitions and etymologies.
+
 **Word Collection**: The application uses a compressed word list stored as wordcollection.gz in the public folder of the React application. This ensures fast loading and efficient storage of the extensive word database.
 
 ## Building and Running

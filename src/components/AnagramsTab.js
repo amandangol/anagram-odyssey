@@ -25,7 +25,7 @@ const AnagramsTab = ({ results, isLoading, error, darkMode, fetchDefinition, tog
                 <li
                   key={index}
                   className={`p-3 rounded-lg flex flex-col sm:flex-row items-start sm:items-center justify-between 
-                    transition-all duration-300 hover:shadow-md hover:-translate-y-1 ${
+                    transition-all duration-300 hover:shadow-md hover:-translate-y-0.5 ${
                       darkMode ? 'bg-gray-800 hover:bg-gray-750' : 'bg-white hover:bg-gray-50'
                     }`}
                 >
