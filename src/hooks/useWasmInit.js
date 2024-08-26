@@ -12,7 +12,9 @@ import init, {
   calculate_scrabble_score,
   calculate_difficulty,
   SortCriteria,
-  generate_shareable_content
+  generate_shareable_content,
+  fetch_definition,
+
 } from '../pkg/anagram_odyssey.js';
 
 const useWasmInit = () => {
@@ -65,6 +67,8 @@ const useWasmInit = () => {
     calculateDifficulty: calculate_difficulty,
     SortCriteria,
     generateShareableContent: generate_shareable_content,
+    fetch_definition,
+
 
   };
 };

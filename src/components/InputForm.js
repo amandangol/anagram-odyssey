@@ -123,16 +123,17 @@ function InputForm({
         </button>
         
         {hasResults && (
-          <button 
-            type="button" 
-            onClick={handleShare} 
-            className={`${buttonClass} flex-grow sm:flex-grow-0 bg-green-500 hover:bg-green-600 text-white`}
-          >
-            <span className="flex items-center justify-center">
-              <FaShare className="mr-2" /> Share
-            </span>
-          </button>
-        )}
+  <button 
+    type="button" 
+    onClick={handleShare} 
+    className={`${buttonClass} flex-grow sm:flex-grow-0 !bg-green-500 hover:!bg-green-600 text-white`}
+  >
+    <span className="flex items-center justify-center">
+      <FaShare className="mr-2" /> Share
+    </span>
+  </button>
+)}
+
       </div>
     </form>
   );

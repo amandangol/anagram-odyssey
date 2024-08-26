@@ -1,9 +1,11 @@
 import React from 'react';
-import { FaInfoCircle, FaHeart, FaChartBar,FaShare } from 'react-icons/fa';
+import { FaInfoCircle, FaHeart, FaChartBar } from 'react-icons/fa';
 
 const AnagramsTab = ({ results, isLoading, error, darkMode, fetchDefinition, toggleFavorite, favoriteWords, hasSearched, totalResults, showWordInfo }) => (
   
+  
   <div>
+
     {isLoading && (
       <p className={`text-lg ${darkMode ? 'text-gray-400' : 'text-gray-700'}`}>
         Searching for anagrams...
@@ -38,23 +40,27 @@ const AnagramsTab = ({ results, isLoading, error, darkMode, fetchDefinition, tog
                     <FaInfoCircle size={17} />
                   </button>
                   <button
-                    onClick={() => toggleFavorite(word)}
-                    className={`focus:outline-none ${favoriteWords && favoriteWords.contains(word)
+                  onClick={() => toggleFavorite(word)}
+                  className={`focus:outline-none ${
+                    favoriteWords && (typeof favoriteWords.contains === 'function' ? favoriteWords.contains(word) : favoriteWords.includes(word))
                       ? 'text-pink-500 hover:text-pink-400'
                       : darkMode
                         ? 'text-gray-400 hover:text-gray-300'
-                        : 'text-gray-500 hover:text-gray-400'}`}
-                    title="Toggle favorite"
-                  >
-                    <FaHeart size={17} />
-                  </button>
-                  <button
-                    onClick={() => showWordInfo(word)}
-                    className={`focus:outline-none ${darkMode ? 'text-green-400 hover:text-green-300' : 'text-green-600 hover:text-green-500'}`}
-                    title="Show word info"
-                  >
-                    <FaChartBar size={17} />
-                  </button>
+                        : 'text-gray-500 hover:text-gray-400'
+                  }`}
+                  title="Toggle favorite"
+                >
+                  <FaHeart size={17} />
+                </button>
+                <button
+                  onClick={() => showWordInfo(word)}
+                  className={`focus:outline-none transition-colors duration-200 ${
+                    darkMode ? 'text-green-400 hover:text-green-300' : 'text-green-500 hover:text-green-600'
+                  }`}
+                  title="Show word info"
+                >
+                  <FaChartBar size={17} />
+                </button>
                 </div>
               </li>
             ))}
@@ -68,7 +74,9 @@ const AnagramsTab = ({ results, isLoading, error, darkMode, fetchDefinition, tog
         </p>
       )
     )}
+    
   </div>
+  
 );
 
 export default AnagramsTab;

@@ -14,7 +14,7 @@ pub fn letters(input: &str, wordlist: &str, min_word_length: usize) -> JsValue {
     }
 
     let pattern = format!("^[{cleaned}]{{{min_word_length},}}$");
-    let matcher = Regex::new(&pattern).expect("The search pattern did not compile :(");
+    let matcher = Regex::new(&pattern).expect("The search pattern failed to compile. 😞");
 
     let mut candidates = Vec::new();
     for line in wordlist.lines() {

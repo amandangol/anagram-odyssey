@@ -29,7 +29,9 @@ function Letters({ darkMode }) {
     selectRandomWord,
     calculateScrabbleScore,
     calculateDifficulty,
-    generateShareableContent
+    generateShareableContent,
+    fetch_definition,
+
   } = useWasmInit();
 
   const [input, setInput] = useState('');
@@ -48,6 +50,7 @@ function Letters({ darkMode }) {
   const [showShareModal, setShowShareModal] = useState(false);
   const [shareContent, setShareContent] = useState('');
   const [hasResults, setHasResults] = useState(false);
+  
 
   const useWordOfTheDay = useCallback(() => {
     setInput(wordOfTheDay);
@@ -67,13 +70,35 @@ function Letters({ darkMode }) {
 
   const fetchDefinition = useCallback(async (word) => {
     setSelectedWord(word);
-    setDefinition('Loading...');
+    setDefinition({ definition: 'Loading...', etymology: '', synonyms: [], partOfSpeech: '' });
     try {
       const result = await fetch_definition(word);
-      setDefinition(result.toString());
+      console.log("Fetched definition result:", result);
+      
+      // Convert Map to object if necessary
+      const resultObj = result instanceof Map ? Object.fromEntries(result) : result;
+  
+      const definition = resultObj.definition?.toString() || 'No definition available';
+      const etymology = resultObj.etymology?.toString() || '';
+      const synonyms = resultObj.synonyms || [];
+      const partOfSpeech = resultObj.partOfSpeech?.toString() || '';
+  
+      console.log("Parsed definition:", { definition, etymology, synonyms, partOfSpeech });
+  
+      setDefinition({
+        definition,
+        etymology,
+        synonyms,
+        partOfSpeech,
+      });
     } catch (error) {
       console.error('Error fetching definition:', error);
-      setDefinition('Failed to fetch definition');
+      setDefinition({ 
+        definition: 'Failed to fetch definition', 
+        etymology: '', 
+        synonyms: [], 
+        partOfSpeech: '' 
+      });
     }
   }, []);
 
