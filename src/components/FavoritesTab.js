@@ -18,7 +18,7 @@ const FavoritesTab = ({ favoriteWords, darkMode, fetchDefinition, toggleFavorite
   return (
     <div className="h-full">
       {localFavorites.length > 0 ? (
-        <ul className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+        <ul className="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-4 gap-3">
           {localFavorites.map((word, index) => (
             <li
               key={index}

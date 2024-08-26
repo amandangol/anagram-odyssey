@@ -20,8 +20,8 @@ const AnagramsTab = ({ results, isLoading, error, darkMode, fetchDefinition, tog
             <h4 className={`text-lg font-semibold mb-2 border-b pb-1 ${darkMode ? 'text-gray-300 border-gray-500' : 'text-gray-700 border-gray-300'}`}>
               {length}-Letter Words
             </h4>
-            <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-              {words.map((word, index) => (
+            <ul className="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-4 gap-3">
+            {words.map((word, index) => (
                 <li
                   key={index}
                   className={`p-3 rounded-lg flex flex-col sm:flex-row items-start sm:items-center justify-between 
