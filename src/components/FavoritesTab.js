@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FaInfoCircle, FaHeart, FaChartBar } from 'react-icons/fa';
+import { FaInfoCircle, FaHeart, FaChartBar,FaHeartBroken } from 'react-icons/fa';
 
 const FavoritesTab = ({ favoriteWords, darkMode, fetchDefinition, toggleFavorite, showWordInfo }) => {
   const [groupedFavorites, setGroupedFavorites] = useState({});
@@ -7,12 +7,18 @@ const FavoritesTab = ({ favoriteWords, darkMode, fetchDefinition, toggleFavorite
   useEffect(() => {
     if (favoriteWords && typeof favoriteWords.get_all === 'function') {
       const allFavorites = favoriteWords.get_all();
-      const grouped = allFavorites.reduce((acc, word) => {
+      const grouped = allFavorites.reduce((acc, [word, timestamp]) => {
         const length = word.length;
         if (!acc[length]) acc[length] = [];
-        acc[length].push(word);
+        acc[length].push({ word, timestamp });
         return acc;
       }, {});
+      
+      // Sort words within each length group by timestamp
+      Object.keys(grouped).forEach(length => {
+        grouped[length].sort((a, b) => b.timestamp - a.timestamp);
+      });
+      
       setGroupedFavorites(grouped);
     }
   }, [favoriteWords]);
@@ -26,7 +32,7 @@ const FavoritesTab = ({ favoriteWords, darkMode, fetchDefinition, toggleFavorite
               {length}-Letter Words
             </h4>
             <ul className="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-4 gap-3">
-              {words.map((word, index) => (
+              {words.map(({ word, timestamp }, index) => (
                 <li
                   key={index}
                   className={`p-3 rounded-lg flex flex-col sm:flex-row items-start sm:items-center justify-between 
@@ -53,11 +59,12 @@ const FavoritesTab = ({ favoriteWords, darkMode, fetchDefinition, toggleFavorite
                     </button>
                     <button
                       onClick={() => toggleFavorite(word)}
-                      className="p-1 rounded-full focus:outline-none transition-colors duration-200 
-                        text-pink-500 hover:text-pink-400 hover:bg-pink-100"
+                      className="p-2 rounded-full focus:outline-none transition-colors duration-200 
+                        text-pink-500 hover:text-pink-400 hover:bg-pink-100 group"
                       title="Remove from favorites"
                     >
-                      <FaHeart size={18} />
+                      <FaHeart size={18} className="group-hover:hidden" />
+                      <FaHeartBroken size={18} className="hidden group-hover:block" />
                     </button>
                     <button
                       onClick={() => showWordInfo(word)}

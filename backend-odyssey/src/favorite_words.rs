@@ -1,11 +1,11 @@
 use wasm_bindgen::prelude::*;
 use serde::{Serialize, Deserialize};
-use std::collections::HashSet;
+use std::collections::HashMap;
 use crate::storage::{get_local_storage_item, set_local_storage_item};
 
 #[derive(Serialize, Deserialize)]
 struct FavoriteWordsData {
-    words: HashSet<String>,
+    words: HashMap<String, u64>, 
 }
 
 #[wasm_bindgen]
@@ -14,20 +14,14 @@ pub struct FavoriteWords {
 }
 
 #[wasm_bindgen]
-pub fn clear_favorite_words(favorite_words: &mut FavoriteWords) {
-    favorite_words.data.words.clear();
-    favorite_words.save();
-}
-
-#[wasm_bindgen]
 impl FavoriteWords {
     #[wasm_bindgen(constructor)]
     pub fn new() -> Self {
         let stored_data = get_local_storage_item("favorite_words");
         let data = if let Some(stored) = stored_data {
-            serde_json::from_str(&stored).unwrap_or(FavoriteWordsData { words: HashSet::new() })
+            serde_json::from_str(&stored).unwrap_or(FavoriteWordsData { words: HashMap::new() })
         } else {
-            FavoriteWordsData { words: HashSet::new() }
+            FavoriteWordsData { words: HashMap::new() }
         };
         FavoriteWords { data }
     }
@@ -38,7 +32,7 @@ impl FavoriteWords {
     }
 
     pub fn add(&mut self, word: String) {
-        self.data.words.insert(word);
+        self.data.words.insert(word, js_sys::Date::now() as u64);
         self.save();
     }
 
@@ -48,10 +42,23 @@ impl FavoriteWords {
     }
 
     pub fn contains(&self, word: &str) -> bool {
-        self.data.words.contains(word)
+        self.data.words.contains_key(word)
     }
 
-    pub fn get_all(&self) -> Vec<String> {
-        self.data.words.iter().cloned().collect()
+    pub fn get_all(&self) -> JsValue {
+        let mut words_with_timestamps: Vec<(String, u64)> = self.data.words.iter()
+            .map(|(word, &timestamp)| (word.clone(), timestamp))
+            .collect();
+        
+        // Sort by timestamp in descending order
+        words_with_timestamps.sort_by(|a, b| b.1.cmp(&a.1));
+        
+        serde_wasm_bindgen::to_value(&words_with_timestamps).unwrap()
     }
+}
+
+#[wasm_bindgen]
+pub fn clear_favorite_words(favorite_words: &mut FavoriteWords) {
+    favorite_words.data.words.clear();
+    favorite_words.save();
 }

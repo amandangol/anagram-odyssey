@@ -55,7 +55,8 @@ const AnagramsTab = ({ results, isLoading, error, darkMode, fetchDefinition, tog
                             ? 'text-gray-400 hover:text-gray-300 hover:bg-gray-700'
                             : 'text-gray-500 hover:text-gray-400 hover:bg-gray-200'
                         }`}
-                      title="Toggle favorite"
+                        title={favoriteWords && (typeof favoriteWords.contains === 'function' ? favoriteWords.contains(word) : favoriteWords.includes(word)) ? "Remove from favorites" : "Add to favorites"}
+
                     >
                       <FaHeart size={18} />
                     </button>

@@ -6,8 +6,10 @@ use std::collections::HashMap;
 use once_cell::sync::Lazy;
 use std::sync::Mutex;
 
+// Global cache to store fetched word information
 static CACHE: Lazy<Mutex<HashMap<String, WordInfo>>> = Lazy::new(|| Mutex::new(HashMap::new()));
 
+// Global storage for the API key
 static API_KEY: Lazy<Mutex<String>> = Lazy::new(|| Mutex::new(String::new()));
 
 #[wasm_bindgen]
