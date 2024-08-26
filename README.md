@@ -26,13 +26,13 @@ Anagram Odyssey is a powerful web application for word enthusiasts and puzzle so
 4. **User-Friendly**: Intuitive design for all skill levels.
 5. **Personalization**: Save favorites and track search history.
 6. **Comprehensive Analysis**: Get detailed word information and statistics.
-7. **Social Sharing**: Share your anagram discoveries with others..
+7. **Social Sharing**: Share your anagram discoveries with others.
 
 ## Video Demo
 
 https://github.com/user-attachments/assets/cce43a7b-fb88-4d66-8bae-c45f6e269514
 
-<img src="https://github.com/user-attachments/assets/57b3da99-ceeb-4fa1-804d-bd9c515270b4" alt="image" width="900" height="400">
+[Anagram Odyssey Link](https://anagram-odyssey.vercel.app/)
 
 ## How It Works
 
