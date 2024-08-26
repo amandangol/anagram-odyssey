@@ -1,50 +1,44 @@
 use wasm_bindgen::prelude::*;
 use wasm_bindgen_futures::JsFuture;
 use web_sys::{Request, RequestInit, RequestMode, Response};
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
+use once_cell::sync::Lazy;
+use std::sync::Mutex;
 
-#[derive(Debug, Deserialize)]
-struct DictionaryEntry {
-    #[serde(default)]
-    shortdef: Vec<String>,
-    #[serde(default)]
-    et: Vec<Vec<EtymologyPart>>,
-    def: Vec<Definition>,
+static CACHE: Lazy<Mutex<HashMap<String, WordInfo>>> = Lazy::new(|| Mutex::new(HashMap::new()));
+
+static API_KEY: Lazy<Mutex<String>> = Lazy::new(|| Mutex::new(String::new()));
+
+#[wasm_bindgen]
+pub fn set_api_key(key: &str) {
+    let mut api_key = API_KEY.lock().unwrap();
+    *api_key = key.to_string();
 }
 
-#[derive(Debug, Deserialize)]
-#[serde(untagged)]
-enum EtymologyPart {
-    Text { text: String },
-    Other(serde_json::Value),
-}
-
-#[derive(Debug, Deserialize)]
-struct Definition {
-    sseq: Vec<Vec<Vec<SenseSequence>>>,
-}
-
-#[derive(Debug, Deserialize)]
-#[serde(untagged)]
-enum SenseSequence {
-    Sense { dt: Vec<DefText> },
-    Other(serde_json::Value),
-}
-
-#[derive(Debug, Deserialize)]
-#[serde(untagged)]
-enum DefText {
-    Text { text: String },
-    Other(serde_json::Value),
+#[derive(Serialize, Deserialize, Clone)]
+pub struct WordInfo {
+    definition: Option<String>,
+    etymology: Option<String>,
+    synonyms: Option<Vec<String>>,
+    part_of_speech: Option<String>,
 }
 
 #[wasm_bindgen]
 pub async fn fetch_definition(word: &str) -> Result<JsValue, JsValue> {
+    // Check cache first
+    {
+        let cache = CACHE.lock().map_err(|e| JsValue::from_str(&format!("Cache error: {}", e)))?;
+        if let Some(info) = cache.get(word) {
+            return Ok(serde_wasm_bindgen::to_value(info)?);
+        }
+    }
+    
     let mut opts = RequestInit::new();
     opts.method("GET");
     opts.mode(RequestMode::Cors);
 
-    let api_key = "71c4c1ac-eae0-40e6-96ab-7016c3b9eb2d";
+    let api_key = API_KEY.lock().map_err(|e| JsValue::from_str(&format!("API key error: {}", e)))?;
     let url = format!(
         "https://dictionaryapi.com/api/v3/references/collegiate/json/{}?key={}",
         word, api_key
@@ -58,13 +52,15 @@ pub async fn fetch_definition(word: &str) -> Result<JsValue, JsValue> {
 
     let json = JsFuture::from(resp.json()?).await?;
     
-    // Log the raw API response
-    web_sys::console::log_1(&format!("Raw API response: {:?}", json).into());
-
     let entries: Vec<serde_json::Value> = serde_wasm_bindgen::from_value(json)?;
     
     if let Some(entry) = entries.first() {
-        let mut result = serde_json::Map::new();
+        let mut word_info = WordInfo {
+            definition: None,
+            etymology: None,
+            synonyms: None,
+            part_of_speech: None,
+        };
 
         // Extract definition
         if let Some(shortdef) = entry.get("shortdef").and_then(|sd| sd.as_array()) {
@@ -73,10 +69,9 @@ pub async fn fetch_definition(word: &str) -> Result<JsValue, JsValue> {
                 .map(|s| s.to_string())
                 .collect();
             if !definitions.is_empty() {
-                result.insert("definition".to_string(), serde_json::Value::String(definitions.join("; ")));
+                word_info.definition = Some(definitions.join("; "));
             }
         }
-
 
         // Extract etymology (if available)
         if let Some(et) = entry.get("et").and_then(|et| et.as_array()).and_then(|et_arr| et_arr.first()) {
@@ -84,7 +79,7 @@ pub async fn fetch_definition(word: &str) -> Result<JsValue, JsValue> {
                 .map(|arr| arr.iter().filter_map(|v| v.as_str()).collect::<Vec<_>>().join(" "))
                 .unwrap_or_default();
             if !etymology.is_empty() {
-                result.insert("etymology".to_string(), serde_json::Value::String(etymology.replace("{et_link|pan:2|pan:2}", "pan")));
+                word_info.etymology = Some(etymology.replace("{et_link|pan:2|pan:2}", "pan"));
             }
         }
 
@@ -114,20 +109,21 @@ pub async fn fetch_definition(word: &str) -> Result<JsValue, JsValue> {
             }
         }
         if !synonyms.is_empty() {
-            result.insert("synonyms".to_string(), serde_json::Value::Array(
-                synonyms.into_iter().map(serde_json::Value::String).collect()
-            ));
+            word_info.synonyms = Some(synonyms);
         }
 
         // Add part of speech
         if let Some(fl) = entry.get("fl").and_then(|fl| fl.as_str()) {
-            result.insert("partOfSpeech".to_string(), serde_json::Value::String(fl.to_string()));
+            word_info.part_of_speech = Some(fl.to_string());
         }
 
-        // Log the processed result
-        web_sys::console::log_1(&format!("Processed result: {:?}", result).into());
+        // Add to cache
+        {
+            let mut cache = CACHE.lock().map_err(|e| JsValue::from_str(&format!("Cache error: {}", e)))?;
+            cache.insert(word.to_string(), word_info.clone());
+        }
 
-        return Ok(serde_wasm_bindgen::to_value(&result)?);
+        return Ok(serde_wasm_bindgen::to_value(&word_info)?);
     }
 
     Ok(JsValue::from_str("No information found"))

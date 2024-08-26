@@ -75,8 +75,6 @@ function App() {
     </div>
   </div>
 </header>
-
-
       <main className="flex-grow px-4 sm:px-6 lg:px-8 py-8 mt-20 transition-colors duration-300">
         <div className="max-w-7xl mx-auto">
           <ErrorBoundary>

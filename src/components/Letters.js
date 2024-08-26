@@ -115,18 +115,27 @@ function Letters({ darkMode }) {
 
   const handleSubmit = useCallback((e) => {
     e.preventDefault();
+    
+    // Check if the input is empty
+    if (!input.trim()) {
+      setError('Please enter some letters to search.');
+      return;
+    }
+  
     if (!letters || !wordlist || !wordHistory) {
       setError('WASM module not yet initialized or wordlist not loaded');
       return;
     }
+  
     setIsLoading(true);
     setError('');
     setHasSearched(true);
+  
     setTimeout(() => {
       try {
         const [wordArray, searchedWord] = letters(input, wordlist, minLength);
         let groupedResults = groupResultsByLength(wordArray.slice(0, maxResults));
-        
+  
         groupedResults = groupedResults.map(([length, words]) => [
           length,
           sortAnagrams(words, 'alphabetical')
@@ -136,6 +145,7 @@ function Letters({ darkMode }) {
         setTotalResults(wordArray.length);
         wordHistory.add(searchedWord);
         setHasResults(wordArray.length > 0);
+  
         if (wordArray.length === 0) {
           setError('No words found. Try different letters or reduce the minimum length.');
         }
@@ -148,6 +158,7 @@ function Letters({ darkMode }) {
       }
     }, 500);
   }, [input, wordlist, minLength, maxResults, sortAnagrams, wordHistory, letters]);
+  
 
   const showWordInfo = useCallback((word) => {
     const stats = getWordStats(word);

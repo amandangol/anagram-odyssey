@@ -3,6 +3,8 @@ import React from 'react';
 function DefinitionModal({ selectedWord, definition, darkMode, onClose }) {
   if (!selectedWord) return null;
 
+  const thesaurusLink = `https://www.merriam-webster.com/thesaurus/${encodeURIComponent(selectedWord)}`;
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className={`relative max-w-md w-full rounded-lg shadow-lg ${darkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'}`}>
@@ -47,6 +49,17 @@ function DefinitionModal({ selectedWord, definition, darkMode, onClose }) {
               </p>
             </>
           )}
+
+          <div className={`text-sm mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+            Synonyms
+          </div>
+             <a href={thesaurusLink}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={`inline-block mb-4 text-blue-500 hover:text-blue-600 underline ${darkMode ? 'hover:text-blue-400' : 'hover:text-blue-700'}`}
+ >
+            View synonyms on Merriam-Webster
+          </a>
 
           <button
             onClick={onClose}

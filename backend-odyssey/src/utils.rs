@@ -1,9 +1,10 @@
 use std::collections::HashSet;
 use std::collections::HashMap;
 use rand::prelude::*;
-use wasm_bindgen::prelude::*;
 use once_cell::sync::Lazy;
 use serde::{Serialize, Deserialize};
+use wasm_bindgen::prelude::*;
+use wasm_bindgen::JsValue;
 
 #[wasm_bindgen]
 pub fn is_valid_word(word: &str, wordlist: &JsValue) -> bool {
@@ -25,8 +26,8 @@ pub fn sort_anagrams(anagrams: &JsValue, sort_by: SortCriteria) -> JsValue {
     match sort_by {
         SortCriteria::Alphabetical => anagrams.sort(),
         SortCriteria::Length => anagrams.sort_by_key(|a| a.len()),
-        SortCriteria::Difficulty => anagrams.sort_by_key(|a| calculate_difficulty(a)),
-        SortCriteria::ScrabbleScore => anagrams.sort_by_key(|a| calculate_scrabble_score(a)),
+        SortCriteria::Difficulty => anagrams.sort_by(|a, b| calculate_difficulty(b).cmp(&calculate_difficulty(a))),
+        SortCriteria::ScrabbleScore => anagrams.sort_by(|a, b| calculate_scrabble_score(b).cmp(&calculate_scrabble_score(a))),
     }
     serde_wasm_bindgen::to_value(&anagrams).unwrap()
 }
@@ -61,7 +62,7 @@ pub fn word_stats(word: &str) -> JsValue {
 
 #[wasm_bindgen]
 pub fn is_palindrome(word: &str) -> bool {
-    let word = word.to_lowercase();
+    let word = word.chars().filter(|c| c.is_alphabetic()).collect::<String>().to_lowercase();
     word.chars().eq(word.chars().rev())
 }
 
@@ -74,8 +75,12 @@ pub fn has_repeated_letters(word: &str) -> bool {
 #[wasm_bindgen]
 pub fn select_random_word(wordlist: &str) -> String {
     let words: Vec<&str> = wordlist.split_whitespace().collect();
-    let mut rng = thread_rng();
-    words.choose(&mut rng).unwrap_or(&"").to_string()
+    if words.is_empty() {
+        String::new()
+    } else {
+        let mut rng = thread_rng();
+        words.choose(&mut rng).unwrap().to_string()
+    }
 }
 
 #[wasm_bindgen]
@@ -83,7 +88,6 @@ pub fn calculate_difficulty(word: &str) -> u8 {
     let length_score = word.len() as u8;
     let unique_letters = word.chars().collect::<HashSet<_>>().len() as u8;
     
-    // Letter frequency in English
     let freq: HashMap<char, f32> = [
         ('e', 12.70), ('t', 9.06), ('a', 8.17), ('o', 7.51), ('i', 6.97),
         ('n', 6.75), ('s', 6.33), ('h', 6.09), ('r', 5.99), ('d', 4.25),
@@ -104,7 +108,15 @@ pub fn calculate_difficulty(word: &str) -> u8 {
         .filter(|w| w.iter().all(|&c| !"aeiou".contains(c)))
         .count() as u8;
 
-    (length_score + unique_letters + (rarity_score as u8) + (consecutive_consonants * 2)).min(255)
+    let vowel_consonant_ratio = {
+        let vowels = word.chars().filter(|&c| "aeiouAEIOU".contains(c)).count() as f32;
+        let consonants = word.chars().filter(|&c| c.is_alphabetic() && !"aeiouAEIOU".contains(c)).count() as f32;
+        if consonants == 0.0 { 0.0 } else { vowels / consonants }
+    };
+
+    let ratio_score = ((0.4 - vowel_consonant_ratio).abs() * 50.0) as u8;
+
+    (length_score + unique_letters + (rarity_score as u8) + (consecutive_consonants * 2) + ratio_score).min(255)
 }
 
 static SCRABBLE_SCORES: Lazy<HashMap<char, u16>> = Lazy::new(|| {

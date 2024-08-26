@@ -14,6 +14,7 @@ import init, {
   SortCriteria,
   generate_shareable_content,
   fetch_definition,
+  set_api_key
 
 } from '../pkg/anagram_odyssey.js';
 
@@ -28,6 +29,7 @@ const useWasmInit = () => {
     const initializeWasm = async () => {
       try {
         await init();
+        set_api_key(process.env.REACT_APP_MERRIAM_WEBSTER_API_KEY);
         const response = await fetch('/wordcollection.gz');
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
