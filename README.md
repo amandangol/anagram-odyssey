@@ -30,9 +30,9 @@ Anagram Odyssey is a powerful web application for word enthusiasts and puzzle so
 
 ## Video Demo
 
-[Link to video demo to be added]
+https://github.com/user-attachments/assets/cce43a7b-fb88-4d66-8bae-c45f6e269514
 
-<img src="https://github.com/user-attachments/assets/680c2a21-eaf9-49a2-b8d9-4723d857be37" alt="image" width="800" height="400">
+<img src="https://github.com/user-attachments/assets/57b3da99-ceeb-4fa1-804d-bd9c515270b4" alt="image" width="900" height="400">
 
 ## How It Works
 
