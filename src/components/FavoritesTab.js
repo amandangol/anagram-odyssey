@@ -42,7 +42,7 @@ const FavoritesTab = ({ favoriteWords, darkMode, fetchDefinition, toggleFavorite
                   }`}
                   title="Get definition"
                 >
-                  <FaInfoCircle size={16} />
+                  <FaInfoCircle size={18} />
                 </button>
                 <button
                   onClick={() => handleToggleFavorite(word)}
@@ -50,7 +50,7 @@ const FavoritesTab = ({ favoriteWords, darkMode, fetchDefinition, toggleFavorite
                     text-pink-500 hover:text-pink-400"
                   title="Toggle favorite"
                 >
-                  <FaHeart size={17} />
+                  <FaHeart size={18} />
                 </button>
                 <button
                   onClick={() => showWordInfo(word)}
@@ -59,7 +59,7 @@ const FavoritesTab = ({ favoriteWords, darkMode, fetchDefinition, toggleFavorite
                   }`}
                   title="Show word info"
                 >
-                  <FaChartBar size={17} />
+                  <FaChartBar size={18} />
                 </button>
               </div>
             </li>

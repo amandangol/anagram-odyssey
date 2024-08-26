@@ -1,12 +1,18 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { FaTimes, FaCopy, FaShareAlt } from 'react-icons/fa';
 
 function ShareModal({ showShareModal, shareContent, darkMode, onClose }) {
+  const [showSnackbar, setShowSnackbar] = useState(false);
+
   if (!showShareModal) return null;
 
   const handleCopyToClipboard = () => {
     navigator.clipboard.writeText(shareContent);
-    onClose();
+    setShowSnackbar(true);
+    setTimeout(() => {
+      setShowSnackbar(false);
+      onClose();
+    }, 2000);
   };
 
   const handleNativeShare = async () => {
@@ -15,7 +21,6 @@ function ShareModal({ showShareModal, shareContent, darkMode, onClose }) {
         await navigator.share({
           title: 'Anagram Odyssey Results',
           text: shareContent,
-          url: 'https://anagram-odyssey.vercel.app'
         });
       } catch (error) {
         console.error('Error sharing:', error);
@@ -31,7 +36,7 @@ function ShareModal({ showShareModal, shareContent, darkMode, onClose }) {
           <h3 className="text-2xl font-bold mb-4 flex items-center">
             <FaShareAlt className="mr-2 text-indigo-500" />
             Share Results
-            </h3>
+          </h3>
           <textarea
             className={`w-full h-48 p-3 rounded-md mb-4 border ${
               darkMode 
@@ -71,6 +76,13 @@ function ShareModal({ showShareModal, shareContent, darkMode, onClose }) {
           </div>
         </div>
       </div>
+      {showSnackbar && (
+        <div className={`fixed bottom-4 left-1/2 transform -translate-x-1/2 px-4 py-2 rounded-md ${
+          darkMode ? 'bg-gray-700 text-white' : 'bg-gray-200 text-gray-800'
+        } transition-opacity duration-300 ease-in-out`}>
+          Copied to clipboard!
+        </div>
+      )}
     </div>
   );
 }
