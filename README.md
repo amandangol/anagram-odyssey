@@ -90,3 +90,5 @@ Open `http://localhost:3000` in your browser.
    npm run build
    ```
 3. Deploy the contents of the `build` folder.
+
+Anagram Odyssey is the perfect tool for anyone looking to enhance their word skills. With its combination of speed, functionality, and user-friendly design, it offers valuable insights and a fun way to explore language. Whether you're a casual word game player or a serious linguist, Anagram Odyssey provides comprehensive word analysis tools to meet your needs.
