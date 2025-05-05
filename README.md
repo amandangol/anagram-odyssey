@@ -1,4 +1,7 @@
 # Anagram Odyssey
+
+<img src="public/anagram.png" alt="Logo" height="100">
+
 **(Top 10 Project of the August Hackathon Challenge)**
 
 Anagram Odyssey is a powerful web application for word enthusiasts and puzzle solvers. It combines Rust's speed with React's interactivity to deliver a seamless anagram-solving experience.
